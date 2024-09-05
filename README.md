@@ -240,8 +240,110 @@ This document will guide you step by step on how to create a Bash script that mo
 
 ---
 
+# PostgreSQL Scripts: 
 
+This document provides a step-by-step guide to perform the task of analyzing CoreDataEngineers' competitor, Parch and Posey. The process involves downloading a CSV file, importing the data into a PostgreSQL database, and writing SQL queries to address specific business questions.
 
+---
+
+## Task Overview
+
+CoreDataEngineers is venturing into sales and needs to analyze their competitor Parch and Posey. The goal is to download a CSV file containing relevant data, load it into a PostgreSQL database, and answer questions using SQL queries.
+
+---
+
+## Step-by-Step Instructions
+
+### 1. Download the CSV File
+1. Download the CSV file from the provided link.
+   - Save the CSV file in a local directory (e.g., `parch_and_posey_data`).
+
+### 2. Create a PostgreSQL Database
+1. Open your PostgreSQL interface (e.g., `psql` or `pgAdmin`).
+2. Create a new database called `posey` using the following command:
+   ```sql
+   CREATE DATABASE posey;
+   ```
+
+### 3. Write a Bash Script to Import CSV Data into PostgreSQL
+
+Bash Script: `import_csv_to_db.sh`
+
+```bash
+#!/bin/bash
+
+# Define database details
+DB_NAME="posey"
+DB_USER="your_username"
+DB_PASSWORD="your_password"
+CSV_DIR="./parch_and_posey_data"
+
+# Loop through all CSV files in the folder and import them
+for file in $CSV_DIR/*.csv; do
+  echo "Importing $file into the database..."
+  
+  # Use the psql COPY command to load the CSV into PostgreSQL
+  psql -d $DB_NAME -U $DB_USER -c "\COPY your_table_name FROM '$file' DELIMITER ',' CSV HEADER;"
+  
+  # Check if the command was successful
+  if [ $? -eq 0 ]; then
+    echo "$file successfully imported into $DB_NAME."
+  else
+    echo "Error importing $file."
+  fi
+done
+```
+
+### 4. Schedule the Script with Cron (Optional)
+If you want to automate this process, you can schedule the script to run at a specified time using `cron`.
+
+1. Open your crontab using the following command:
+   ```bash
+   crontab -e
+   ```
+2. Add the following line to schedule the script to run daily at 12:00 AM:
+   ```bash
+   0 0 * * * /path_to_your_script/import_csv_to_db.sh
+   ```
+
+### 5. Writen the SQL Queries to Answer Business Questions
+
+#### Question 1: Find Order IDs Where `gloss_qty` or `poster_qty` > 4000
+
+```sql
+SELECT id
+FROM orders
+WHERE gloss_qty > 4000 OR poster_qty > 4000;
+```
+
+#### Question 2: Orders Where `standard_qty` is Zero and `gloss_qty` or `poster_qty` > 1000
+
+```sql
+SELECT id, gloss_qty, poster_qty
+FROM orders
+WHERE standard_qty = 0
+AND (gloss_qty > 1000 OR poster_qty > 1000);
+```
+
+#### Question 3: Find Company Names Starting with 'C' or 'W' and Where Contact Contains 'ana' but not 'eana'
+
+```sql
+SELECT company_name
+FROM companies
+WHERE (company_name LIKE 'C%' OR company_name LIKE 'W%')
+AND primary_contact ILIKE '%ana%'
+AND primary_contact NOT ILIKE '%eana%';
+```
+
+#### Question 4: Table of Region, Sales Rep, and Accounts
+
+``` sql
+SELECT regions.region_name, sales_reps.sales_rep_name, accounts.account_name
+FROM sales_reps
+JOIN regions ON sales_reps.region_id = regions.id
+JOIN accounts ON sales_reps.account_id = accounts.id
+ORDER BY accounts.account_name ASC;
+```
 
 
 
