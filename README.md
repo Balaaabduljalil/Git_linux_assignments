@@ -105,7 +105,7 @@ else
     exit 1
 fi
 ```
-#Bash Script to Moved CSV and JSON Files to different Direcotry.
+# Bash Script to Moved CSV and JSON Files to different Direcotry.
 
 This document will guide you step by step on how to create a Bash script that moves all CSV and JSON files from one folder to another folder named `json_and_CSV`. The script will work with one or more files of each type.
 
